@@ -1,0 +1,3 @@
+jobs:
+  - script: folder("DevOps")
+  - file: ${JENKINS_HOME}/seedJobs.groovy

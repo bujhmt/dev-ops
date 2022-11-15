@@ -1,8 +1,7 @@
 def folder_name = 'examples/mock_service'
 def job_name = 'MockService'
-def job_title = [folder_name, job_name]
 
-pipelineJob(job_title.join('/')) {
+pipelineJob(job_name) {
   displayName('Mock Service')
   logRotator {
     numToKeep(5)

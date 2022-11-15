@@ -38,7 +38,7 @@ freeStyleJob(jobTitle.join('/')) {
   scm {
     git {
       remote {
-        github('https://github.com/bujhmt/dev-ops.git', 'https')
+        github('bujhmt/dev-ops', 'https')
       }
       branches('${BRANCH}')
     }
@@ -46,7 +46,7 @@ freeStyleJob(jobTitle.join('/')) {
   steps {
     action = System.getenv('ENVIRONMENT') == 'test' ? 'IGNORE' : 'DELETE'
     dsl {
-      external('jenkins/jobs/*.groovy', 'jenkins/jobs/*/.groovy')
+      external('jenkins/jobs/*.groovy', 'jenkins/jobs/*/*.groovy')
       removeAction(action)
       removeViewAction(action)
     }

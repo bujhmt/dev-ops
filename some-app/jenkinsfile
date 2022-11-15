@@ -1,0 +1,98 @@
+pipeline {
+    agent { label 'base' }
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building..'
+            }
+        }
+        
+        stage('Unit Test') {
+            steps {
+                echo 'Testing..'
+                sh (script:"python3 -m unittest")
+            }
+        }
+
+        stage('Docker build and push') {
+            steps {
+                script {
+                    AWS_REGION   = System.getenv('AWS_REGION')
+                    sh (script:"aws configure set region ${AWS_REGION}")
+                    awsAccountId = sh (script: "aws sts  get-caller-identity --query Account --output text", returnStdout: true).trim()
+                    ecrPath      = "asimov-mock-app"
+                    ecrUrl       = "${awsAccountId}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ecrPath}"
+                    commitId     = sh returnStdout: true, script: 'git rev-parse --short HEAD'
+                    commitId     = commitId.trim()
+                    commitMsg     = sh returnStdout: true, script: 'git show -s --format=%s'
+                    sh """
+                    aws ecr get-login-password | docker login --username AWS --password-stdin ${ecrUrl}
+                    echo "Checking ECR repo and create it if not exist"
+                    aws ecr describe-repositories --repository-name ${ecrPath} || \
+                        { aws ecr create-repository --repository-name ${ecrPath} --tags file://./jobs/ecr-tags.json; \
+                        aws ecr set-repository-policy --repository-name ${ecrPath} --policy-text file://./jobs/ecr-policy.json; \
+                        aws ecr put-lifecycle-policy --repository-name ${ecrPath} --lifecycle-policy-text file://./jobs/ecr-lifecycle-policy.json; }
+                    docker build -t \"${ecrUrl}:${commitId}\" --build-arg VERSION_ARG=${commitId} --build-arg COMMIT_ARG=\"${commitMsg}\" .
+                    docker push ${ecrUrl}:${commitId}
+                    docker tag ${ecrUrl}:${commitId} ${ecrUrl}:latest
+                    docker push ${ecrUrl}:latest
+                    """
+                }
+            }
+        }
+
+        stage('Deploy to DEV') {
+          steps {
+            script {
+                deploy('dev')
+            }
+          }
+        }
+
+        stage('Integration test run on DEV') {
+          steps {
+            script {
+              test('mockapp-dev.mysite.com')
+            }
+          }
+        }
+
+        stage('Deploy to STAGE') {
+          // when {
+          //   branch "master"
+          // }
+          when { anyOf { branch 'master'; tag "v*" } }
+          steps {
+            script {
+                deploy('staging')
+            }
+          }
+        }
+
+        stage('Integration test on STAGING') {
+          // when {
+          //   branch "master" 
+          // }
+          when { anyOf { branch 'master'; tag "v*" } }
+          steps {
+            script {
+              test('mockapp-staging.mysite.com')
+            }
+          }
+        }
+
+        stage('Deploy to PROD') {
+            when { tag "v*" }
+            steps {
+                deploy('prod')
+            }
+        }
+
+        stage('Acceptance test on PROD') {
+            when { tag "v*" }
+            steps {
+              test('mockapp.mysite.com')
+            }
+        }
+    }
+}

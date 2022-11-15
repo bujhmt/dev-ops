@@ -16,7 +16,7 @@ freeStyleJob(jobTitle.join('/')) {
     hudsonStartupTrigger {
       quietPeriod('5')
       runOnChoice('ON_CONNECT')
-      label('master')
+      label('bult-in')
       nodeParameterName('')
     }
   }

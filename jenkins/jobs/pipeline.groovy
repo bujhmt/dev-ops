@@ -1,8 +1,7 @@
-def folder_name = 'examples/mock_service'
-def job_name = 'MockService'
+def job_name = 'simple-java-maven-app'
 
 pipelineJob(job_name) {
-  displayName('Mock Service')
+  displayName(job_name)
   logRotator {
     numToKeep(5)
   }
@@ -27,13 +26,12 @@ pipelineJob(job_name) {
       scm {
         git {
           remote {
-            credentials('/github-emu/token')
-            github('project/mock-service')
+            github('jenkins-docs/simple-java-maven-app')
           }
           branches('${GIT_BRANCH}')
         }
       }
-      scriptPath('jobs/pipeline.jenkinsfile')
+      scriptPath('jenkins/Jenkinsfile')
       lightweight(false)
     }
   }

@@ -16,7 +16,7 @@ provider "aws" {
 
 resource "aws_key_pair" "deployer" {
   key_name   = "tf-key"
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDakFPaE4Zn+JjNUlMfdNv+aLuT0LFmb5Os0hc1Mo+3EwyHki/zXC3LIv4gA0p4fU2goEzUE+EWpTUWG2vlp8dJwYSKZPRHDJ1JPhdAnPXTu2WwT9KdKtewSfxM7NQP4ujAfGuxwyN0lj9f5DSJRRoA78dK2xq7QKa5SwVEUxyQQk5gkFk4mUwuY75bhOENduTV6AFNzH40yWhWzeLeXsjYhUGA6CfEXlOklQOXhTbkA1vn2+ODjImSt3Ah2rfhU2g49W/JF9X8OMIHIWtEG60xrzKAGGrd91BeWt+Xrb0UyAzo/5/cLcTWTm7T0CQwv7+BhpE3bATvQsfUIKKWo+1lcm5AbmcZJYwhDBeL+C9xkhm/Jaj9Sv2831jGwe3XDEfesKxAmobe/XITA9COav6GTVPmUToVr5Gl5BStGr0ZehFhjQkxCwlfoezkDKD7vaFUJ0NcK9vhyTU8nHux/7Ebv9hw2t4nBQvJsR2pOnFf5q6SV7TVf1ixT3YyiJW9dXiGEJPVEkw713Xl9iwMExl+Uu+0WJeQN0U1ong9EVomksUxnxRd1Fr088xnGLuyxO3dDy2/kG2/HTBFeX+K0WoE7x0e00HJlvIM2CTxkmn6x3V/0qlVfh+GMzKe0nJwwrGKcakPrI+P91pPDyHAwBRcsW755m2tYhU94M2E24Nr8Q== ihor@MacBook-Pro.local"
+  public_key = "ssh-rsa <public-ssh-key>"
 }
 
 resource "aws_security_group" "jenkins_sg" {
@@ -28,7 +28,7 @@ resource "aws_security_group" "jenkins_sg" {
     from_port        = 22
     to_port          = 22
     protocol         = "TCP"
-    cidr_blocks      = ["94.45.53.204/32"]
+    cidr_blocks      = ["my-ip"]
   }
 
   ingress {
@@ -36,7 +36,7 @@ resource "aws_security_group" "jenkins_sg" {
     from_port        = 80
     to_port          = 80
     protocol         = "TCP"
-    cidr_blocks      = ["94.45.53.204/32"]
+    cidr_blocks      = ["ip"]
   }
 
   egress {
